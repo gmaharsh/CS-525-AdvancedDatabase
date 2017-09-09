@@ -72,6 +72,7 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
 		return RC_FILE_NOT_FOUND;
 	}
 	if(pageNum > fHandle->totalNumPages){
+
 		return RC_READ_NON_EXISTING_PAGE;
 	}
 
@@ -81,13 +82,9 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
 	}
 
 	readBytes = fread(memPage,sizeof(char),PAGE_SIZE,fHandle->mgmtInfo);
-	if(readBytes != PAGE_SIZE){
-		return RC_READ_NON_EXISTING_PAGE;
-	}
-	else{
-		fHandle->curPagePos = pageNum;
-		return RC_OK;
-	}
+	fHandle->curPagePos = pageNum;
+	return RC_OK;
+
 }
 
 
@@ -132,6 +129,9 @@ extern RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
 }
 extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
 
+	if(pageNum > fHandle->totalNumPages || pageNum <0){
+		return RC_WRITE_FAILED;
+	}
   page = fopen(fHandle->fileName,"r+");
   if(page == NULL){
     return RC_FILE_NOT_FOUND;
@@ -141,13 +141,19 @@ extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 		return RC_ERROR;
 	}else{
     fwrite(memPage,sizeof(char),strlen(memPage),page);
-    fclose(page);
-    return RC_OK;
+		fHandle->curPagePos = pageNum;
+		fclose(page);
+
+		return RC_OK;
   }
 }
 extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
   int currentPosition = getBlockPos(fHandle);
-  writeBlock(currentPosition,fHandle,memPage);
+	fHandle->totalNumPages += 1;
+	
+
+	writeBlock(currentPosition,fHandle,memPage);
+
 }
 extern RC appendEmptyBlock (SM_FileHandle *fHandle){
   page = fopen(fHandle->fileName,"r+");
