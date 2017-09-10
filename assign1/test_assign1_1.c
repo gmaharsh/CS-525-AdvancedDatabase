@@ -96,5 +96,7 @@ testSinglePageContent(void)
   // destroy new page file
   TEST_CHECK(destroyPageFile (TESTPF));
 
+  free(ph);
+
   TEST_DONE();
 }

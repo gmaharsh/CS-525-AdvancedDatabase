@@ -22,11 +22,10 @@ extern RC createPageFile(char *fileName){
 		SM_PageHandle emptyBlock = (SM_PageHandle)calloc(PAGE_SIZE,sizeof(char));
 
 		if(fwrite(emptyBlock,sizeof(char),PAGE_SIZE,page) >= PAGE_SIZE) {
+			fclose(page);
+	    free(emptyBlock);
       return RC_OK;
 		}
-
-    fclose(page);
-    free(emptyBlock);
 
 	}
 
@@ -46,6 +45,7 @@ extern RC openPageFile(char *fileName, SM_FileHandle *fHandle){
 		fHandle->totalNumPages = size;
 		fHandle->mgmtInfo = page;
 		fHandle->curPagePos = 0;
+
 		return RC_OK;
 	}
 
@@ -66,7 +66,7 @@ extern RC destroyPageFile(char *fileName){
 }
 
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage){
-	size_t readBytes;
+
 
 	if(fHandle->mgmtInfo == NULL){
 		return RC_FILE_NOT_FOUND;
@@ -81,7 +81,7 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
 		return RC_ERROR;
 	}
 
-	readBytes = fread(memPage,sizeof(char),PAGE_SIZE,fHandle->mgmtInfo);
+	fread(memPage,sizeof(char),PAGE_SIZE,fHandle->mgmtInfo);
 	fHandle->curPagePos = pageNum;
 	return RC_OK;
 
@@ -100,7 +100,7 @@ extern RC readFirstBlock(SM_FileHandle *fHandle , SM_PageHandle memPage){
     readBlock(0,fHandle,memPage);
   }
 extern RC readLastBlock(SM_FileHandle *fHandle , SM_PageHandle memPage){
-  size_t readBytes;
+
   int totalPages = fHandle->totalNumPages;
   if(fHandle->mgmtInfo == NULL){
     return RC_FILE_NOT_FOUND;
@@ -150,8 +150,6 @@ extern RC writeBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 extern RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle memPage){
   int currentPosition = getBlockPos(fHandle);
 	fHandle->totalNumPages += 1;
-	
-
 	writeBlock(currentPosition,fHandle,memPage);
 
 }
@@ -160,7 +158,7 @@ extern RC appendEmptyBlock (SM_FileHandle *fHandle){
   int totalPages = fHandle->totalNumPages;
   fHandle->totalNumPages += 1;
 
-  int val = fseek(page,totalPages*PAGE_SIZE,SEEK_SET);
+  fseek(page,totalPages*PAGE_SIZE,SEEK_SET);
   char c = 0 ;
   int i;
   for(i=0;i<PAGE_SIZE;i++){
@@ -175,7 +173,7 @@ extern RC ensureCapacity(int numberOfPages, SM_FileHandle *fHandle){
     for(int i=0;i<pagesToAdd;i++)
         appendEmptyBlock(fHandle);
   }
-  if(fHandle->totalNumPages = numberOfPages){
+  if(fHandle->totalNumPages == numberOfPages){
     return RC_OK;
   }
   //printf("%d",fHandle->totalNumPages);

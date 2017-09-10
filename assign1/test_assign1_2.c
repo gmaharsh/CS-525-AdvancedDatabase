@@ -162,7 +162,8 @@ void testNewCases(){
   TEST_CHECK(closePageFile (&fh));
   TEST_CHECK(destroyPageFile (TESTPF));
 
-
+  
+  free(ph);
   TEST_DONE();
 
 
