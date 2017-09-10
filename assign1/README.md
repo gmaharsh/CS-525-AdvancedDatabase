@@ -1,5 +1,5 @@
 
-RUNNING THE SCRIPT
+# RUNNING THE SCRIPT
 
 * Go to Project root (assign1) using Terminal.
 
@@ -16,7 +16,7 @@ RUNNING THE SCRIPT
 * Type "make run_test2" to run "test_assign1_2.c" file.
 
 
-File related methods
+# File related methods
 
 
 extern void initStorageManager (void)
