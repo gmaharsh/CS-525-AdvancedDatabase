@@ -20,19 +20,19 @@
 
 
 ## extern void initStorageManager (void)
-We first initialize the Storage Manager and make the FileStream object to null.
+  *We first initialize the Storage Manager and make the FileStream object to null.
 
-Methods used for file operations are createPageFile, openPageFile, closePageFile and destroPageFile.
+  *Methods used for file operations are createPageFile, openPageFile, closePageFile and destroPageFile.
 
-## extern RC createPageFile(char *fileName)
+## extern RC createPageFile(char \*fileName)
 
  * We create a page file in w+ mode enabling it for both read and write operations using fopen() function.
- * We use calloc() for allocating memory and setting the allocated memory to 0
+ * We create an empty PageHandle and we use calloc() for allocating memory and setting the allocated memory to 0
  * The name of the page file created is filename as specified in the parameter.
  * Post validations, we return either RC_OK if all the operations are successful or RC_FILE_NOT_FOUND in case the file is not created successfully.
- * Page is closed and memory is freed once the operations are completed.
+ * Page is closed and memory is freed once the operations are completed to prevent any memory leaks.
 
-## extern RC openPageFile(char *fileName, SM_FileHandle *fHandle)
+## extern RC openPageFile(char \*fileName, SM_FileHandle \*fHandle)
 
  * This method opens the previously created existing page file in read only (r) mode using fopen() function.
  * On successful opening of the file, we initialize the fields of SM_FileHandle structure.
