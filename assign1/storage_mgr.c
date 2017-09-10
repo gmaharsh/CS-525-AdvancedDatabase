@@ -71,7 +71,7 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
 	if(fHandle->mgmtInfo == NULL){
 		return RC_FILE_NOT_FOUND;
 	}
-	if(pageNum > fHandle->totalNumPages){
+	if(pageNum > fHandle->totalNumPages && pageNum < 0 ){
 
 		return RC_READ_NON_EXISTING_PAGE;
 	}
@@ -167,7 +167,7 @@ extern RC appendEmptyBlock (SM_FileHandle *fHandle){
 }
 
 extern RC ensureCapacity(int numberOfPages, SM_FileHandle *fHandle){
-  page = fopen(fHandle->fileName, "r+");
+  
   int pagesToAdd = numberOfPages - fHandle->totalNumPages;
   if(pagesToAdd > 0){
     for(int i=0;i<pagesToAdd;i++)
