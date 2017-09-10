@@ -103,26 +103,26 @@
 - Used Valgrind to check for potential memory leaks and debugging the memory leaks.
 
 ## Valgrind output for Test Case 1
-   HEAP SUMMARY:
-   ==9174==     in use at exit: 552 bytes in 1 blocks
-   ==9174==   total heap usage: 15 allocs, 14 frees, 37,104 bytes allocated
-   ==9174==
-   ==9174== LEAK SUMMARY:
-   ==9174==    definitely lost: 0 bytes in 0 blocks
-   ==9174==    indirectly lost: 0 bytes in 0 blocks
-   ==9174==      possibly lost: 0 bytes in 0 blocks
-   ==9174==    still reachable: 552 bytes in 1 blocks
-   ==9174==         suppressed: 0 bytes in 0 blocks
+       HEAP SUMMARY:
+       ==9174==     in use at exit: 552 bytes in 1 blocks
+       ==9174==   total heap usage: 15 allocs, 14 frees, 37,104 bytes allocated
+       ==9174==
+       ==9174== LEAK SUMMARY:
+       ==9174==    definitely lost: 0 bytes in 0 blocks
+       ==9174==    indirectly lost: 0 bytes in 0 blocks
+       ==9174==      possibly lost: 0 bytes in 0 blocks
+       ==9174==    still reachable: 552 bytes in 1 blocks
+       ==9174==         suppressed: 0 bytes in 0 blocks
 
 
 ## Valgrind output for Test Case 2
-   HEAP SUMMARY:
-   ==9316==     in use at exit: 1,104 bytes in 2 blocks
-   ==9316==   total heap usage: 25 allocs, 23 frees, 60,344 bytes allocated
-   ==9316==
-   ==9316== LEAK SUMMARY:
-   ==9316==    definitely lost: 0 bytes in 0 blocks
-   ==9316==    indirectly lost: 0 bytes in 0 blocks
-   ==9316==      possibly lost: 0 bytes in 0 blocks
-   ==9316==    still reachable: 1,104 bytes in 2 blocks
-   ==9316==         suppressed: 0 bytes in 0 blocks
+       HEAP SUMMARY:
+       ==9316==     in use at exit: 1,104 bytes in 2 blocks
+       ==9316==   total heap usage: 25 allocs, 23 frees, 60,344 bytes allocated
+       ==9316==
+       ==9316== LEAK SUMMARY:
+       ==9316==    definitely lost: 0 bytes in 0 blocks
+       ==9316==    indirectly lost: 0 bytes in 0 blocks
+       ==9316==      possibly lost: 0 bytes in 0 blocks
+       ==9316==    still reachable: 1,104 bytes in 2 blocks
+       ==9316==         suppressed: 0 bytes in 0 blocks
