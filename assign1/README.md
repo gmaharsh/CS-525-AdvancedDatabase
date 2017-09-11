@@ -1,12 +1,10 @@
 
 # RUNNING THE SCRIPT
-## Note : A delay of 1000 ms is added in the second test case file which enables us to see the sequence of operations more clearly.m
+## Note : A delay of 1000 ms is added in the second test case file which enables us to see the sequence of operations more clearly.
 
 * Go to Project root (assign1) using Terminal.
 
 * Type ls to list the files and check that we are in the correct directory.
-
-* Type "make clean" to delete old compiled .o files.
 
 * Type "make" to compile all project files including "test_assign1_1.c" file
 
@@ -16,6 +14,7 @@
 
 * Type "make run_test_2" to run "test_assign1_2.c" file.
 
+* Type "make clean" to delete old compiled .o files.
 
 # File related methods
 

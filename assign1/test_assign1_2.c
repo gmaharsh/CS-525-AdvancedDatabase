@@ -128,7 +128,7 @@ void testNewCases(){
   printf("Reading the 3rd Block to verify\n");
 
 
-  delay(10000);
+  delay(1000);
 
 
   printf("Current total number of pages : %d \n",fh.totalNumPages);
@@ -153,7 +153,8 @@ void testNewCases(){
   for (i=0; i < PAGE_SIZE; i++)
     ASSERT_TRUE((ph[i] == (i % 10) + '5'), "character in page read from disk is the one we expected.");
   printf("Reading from the newely created block to verify\n");
-
+  delay(1000);
+  
   TEST_CHECK(readLastBlock(&fh,ph));
   for (i=0; i < PAGE_SIZE; i++)
     ASSERT_TRUE((ph[i] == (i % 10) + '5'), "character in page read from disk is the one we expected.");
@@ -162,7 +163,7 @@ void testNewCases(){
   TEST_CHECK(closePageFile (&fh));
   TEST_CHECK(destroyPageFile (TESTPF));
 
-  
+
   free(ph);
   TEST_DONE();
 
