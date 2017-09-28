@@ -11,7 +11,7 @@
 // var to store the current test's name
 char *testName;
 
-// check whether two the content of a buffer pool is the same as an expected content 
+// check whether two the content of a buffer pool is the same as an expected content
 // (given in the format produced by sprintPoolContent)
 #define ASSERT_EQUALS_POOL(expected,bm,message)			        \
   do {									\
@@ -32,15 +32,14 @@ char *testName;
 static void testCreatingAndReadingDummyPages (void);
 static void createDummyPages(BM_BufferPool *bm, int num);
 static void checkDummyPages(BM_BufferPool *bm, int num);
-
 static void testReadPage (void);
-
+int returnPinStatus(BM_BufferPool *bm);
 static void testFIFO (void);
 static void testLRU (void);
 
 // main method
-int 
-main (void) 
+int
+main (void)
 {
   initStorageManager();
   testName = "";
@@ -52,16 +51,18 @@ main (void)
 }
 
 // create n pages with content "Page X" and read them back to check whether the content is right
+
 void
 testCreatingAndReadingDummyPages (void)
 {
   BM_BufferPool *bm = MAKE_POOL();
+
   testName = "Creating and Reading Back Dummy Pages";
 
   CHECK(createPageFile("testbuffer.bin"));
 
-  createDummyPages(bm, 22);
-  checkDummyPages(bm, 20);
+  createDummyPages(bm,22);
+  checkDummyPages(bm,22);
 
   createDummyPages(bm, 10000);
   checkDummyPages(bm, 10000);
@@ -73,28 +74,28 @@ testCreatingAndReadingDummyPages (void)
 }
 
 
-void 
+void
 createDummyPages(BM_BufferPool *bm, int num)
 {
   int i;
-  BM_PageHandle *h = MAKE_PAGE_HANDLE();
+    BM_PageHandle *h = MAKE_PAGE_HANDLE();
 
-  CHECK(initBufferPool(bm, "testbuffer.bin", 3, RS_FIFO, NULL));
-  
-  for (i = 0; i < num; i++)
-    {
-      CHECK(pinPage(bm, h, i));
-      sprintf(h->data, "%s-%i", "Page", h->pageNum);
-      CHECK(markDirty(bm, h));
-      CHECK(unpinPage(bm,h));
-    }
+    CHECK(initBufferPool(bm, "testbuffer.bin", 3, RS_FIFO, NULL));
 
-  CHECK(shutdownBufferPool(bm));
+    for (i = 0; i < num; i++)
+      {
+        CHECK(pinPage(bm, h, i));
+        sprintf(h->data, "%s-%i", "Page", h->pageNum);
+        CHECK(markDirty(bm, h));
+        CHECK(unpinPage(bm,h));
+      }
 
-  free(h);
+    CHECK(shutdownBufferPool(bm));
+
+    free(h);
 }
 
-void 
+void
 checkDummyPages(BM_BufferPool *bm, int num)
 {
   int i;
@@ -128,7 +129,7 @@ testReadPage ()
 
   CHECK(createPageFile("testbuffer.bin"));
   CHECK(initBufferPool(bm, "testbuffer.bin", 3, RS_FIFO, NULL));
-  
+
   CHECK(pinPage(bm, h, 0));
   CHECK(pinPage(bm, h, 0));
 
@@ -152,11 +153,11 @@ void
 testFIFO ()
 {
   // expected results
-  const char *poolContents[] = { 
-    "[0 0],[-1 0],[-1 0]" , 
-    "[0 0],[1 0],[-1 0]", 
-    "[0 0],[1 0],[2 0]", 
-    "[3 0],[1 0],[2 0]", 
+  const char *poolContents[] = {
+    "[0 0],[-1 0],[-1 0]" ,
+    "[0 0],[1 0],[-1 0]",
+    "[0 0],[1 0],[2 0]",
+    "[3 0],[1 0],[2 0]",
     "[3 0],[4 0],[2 0]",
     "[3 0],[4 1],[2 0]",
     "[3 0],[4 1],[5x0]",
@@ -183,6 +184,7 @@ testFIFO ()
   // reading some pages linearly with direct unpin and no modifications
   for(i = 0; i < numLinRequests; i++)
     {
+      //printf("lol");
       pinPage(bm, h, requests[i]);
       unpinPage(bm, h);
       ASSERT_EQUALS_POOL(poolContents[i], bm, "check pool content");
@@ -207,7 +209,7 @@ testFIFO ()
   h->pageNum = 4;
   unpinPage(bm, h);
   ASSERT_EQUALS_POOL(poolContents[i],bm,"unpin last page");
-  
+
   i++;
   forceFlushPool(bm);
   ASSERT_EQUALS_POOL(poolContents[i],bm,"pool content after flush");
@@ -229,10 +231,10 @@ void
 testLRU (void)
 {
   // expected results
-  const char *poolContents[] = { 
+  const char *poolContents[] = {
     // read first five pages and directly unpin them
-    "[0 0],[-1 0],[-1 0],[-1 0],[-1 0]" , 
-    "[0 0],[1 0],[-1 0],[-1 0],[-1 0]", 
+    "[0 0],[-1 0],[-1 0],[-1 0],[-1 0]" ,
+    "[0 0],[1 0],[-1 0],[-1 0],[-1 0]",
     "[0 0],[1 0],[2 0],[-1 0],[-1 0]",
     "[0 0],[1 0],[2 0],[3 0],[-1 0]",
     "[0 0],[1 0],[2 0],[3 0],[4 0]",
@@ -286,7 +288,7 @@ testLRU (void)
       pinPage(bm, h, 5 + i);
       unpinPage(bm, h);
       ASSERT_EQUALS_POOL(poolContents[snapshot], bm, "check pool content using pages");
-      snapthot++;
+      snapshot++;
   }
 
   // check number of write IOs
@@ -298,5 +300,6 @@ testLRU (void)
 
   free(bm);
   free(h);
+
   TEST_DONE();
 }

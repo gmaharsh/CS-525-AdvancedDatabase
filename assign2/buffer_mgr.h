@@ -41,7 +41,7 @@ typedef struct BM_PageHandle {
 		((BM_PageHandle *) malloc (sizeof(BM_PageHandle)))
 
 // Buffer Manager Interface Pool Handling
-RC initBufferPool(BM_BufferPool *const bm, const char *const pageFileName, 
+RC initBufferPool(BM_BufferPool *const bm, const char *const pageFileName,
 		const int numPages, ReplacementStrategy strategy,
 		void *stratData);
 RC shutdownBufferPool(BM_BufferPool *const bm);
@@ -51,7 +51,7 @@ RC forceFlushPool(BM_BufferPool *const bm);
 RC markDirty (BM_BufferPool *const bm, BM_PageHandle *const page);
 RC unpinPage (BM_BufferPool *const bm, BM_PageHandle *const page);
 RC forcePage (BM_BufferPool *const bm, BM_PageHandle *const page);
-RC pinPage (BM_BufferPool *const bm, BM_PageHandle *const page, 
+RC pinPage (BM_BufferPool *const bm, BM_PageHandle *const page,
 		const PageNumber pageNum);
 
 // Statistics Interface

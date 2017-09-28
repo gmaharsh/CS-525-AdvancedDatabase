@@ -8,7 +8,7 @@
 static void printStrat (BM_BufferPool *const bm);
 
 // external functions
-void 
+void
 printPoolContent (BM_BufferPool *const bm)
 {
 	PageNumber *frameContent;
@@ -33,6 +33,7 @@ char *
 sprintPoolContent (BM_BufferPool *const bm)
 {
 	PageNumber *frameContent;
+
 	bool *dirty;
 	int *fixCount;
 	int i;
@@ -43,6 +44,8 @@ sprintPoolContent (BM_BufferPool *const bm)
 	frameContent = getFrameContents(bm);
 	dirty = getDirtyFlags(bm);
 	fixCount = getFixCounts(bm);
+
+	
 
 	for (i = 0; i < bm->numPages; i++)
 		pos += sprintf(message + pos, "%s[%i%s%i]", ((i == 0) ? "" : ",") , frameContent[i], (dirty[i] ? "x": " "), fixCount[i]);
