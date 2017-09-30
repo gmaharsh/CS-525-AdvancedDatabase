@@ -7,8 +7,14 @@ default: test_1
 test_1: test_case_1.o buffer_mgr.o storage_mgr.o dberror.o buffer_mgr_stat.o
 	$(CC) -o test_1 test_case_1.o buffer_mgr.o storage_mgr.o dberror.o buffer_mgr_stat.o
 
+test_2: test_case_2.o buffer_mgr.o storage_mgr.o dberror.o buffer_mgr_stat.o
+		$(CC) -o test_2 test_case_2.o buffer_mgr.o storage_mgr.o dberror.o buffer_mgr_stat.o
+
 test_case_1.o: test_assign2_1.c $(HEADERS)
 	$(CC) -o test_case_1.o -c test_assign2_1.c -lm
+
+test_case_2.o: test_assign2_2.c $(HEADERS)
+		$(CC) -o test_case_2.o -c test_assign2_2.c -lm
 
 buffer_mgr.o: buffer_mgr.c $(HEADERS)
 		$(CC) -c buffer_mgr.c -o buffer_mgr.o
