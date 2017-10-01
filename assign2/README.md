@@ -1,6 +1,6 @@
 #  Running the Script
 
-* Go to Project root (assign1) using Terminal.
+* Go to Project root (assign2) using Terminal.
 
 * Type ls to list the files and check that we are in the correct directory.
 
