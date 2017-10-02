@@ -24,6 +24,8 @@ found inside the pool or else it is fetched from the disk. If the buffer is full
 one of the two methods namely LRU and FIFO. Least Recently Used method swaps pages that was least recently fetched. First In First Out method uses first come first serve logic. The page that was fetched first gets replaced first. Changes made in the frames are reflected
 back to the disk when a page leaves the pool.
 
+## Note : The Queue data structure in this program is not an exact implementation of a queue. The position variable is used to virtually swap the pageFrames position in the array of strucures in order to simulate the functionality of a queue. 
+
 
 ## Buffer Pool Functions :
 _____________________
