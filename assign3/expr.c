@@ -7,7 +7,7 @@
 #include "tables.h"
 
 // implementations
-RC 
+RC
 valueEquals (Value *left, Value *right, Value *result)
 {
 	if(left->dt != right->dt)
@@ -33,7 +33,7 @@ valueEquals (Value *left, Value *right, Value *result)
 	return RC_OK;
 }
 
-RC 
+RC
 valueSmaller (Value *left, Value *right, Value *result)
 {
 	if(left->dt != right->dt)
@@ -58,7 +58,7 @@ valueSmaller (Value *left, Value *right, Value *result)
 	return RC_OK;
 }
 
-RC 
+RC
 boolNot (Value *input, Value *result)
 {
 	if (input->dt != DT_BOOL)
@@ -180,11 +180,10 @@ freeExpr (Expr *expr)
 	return RC_OK;
 }
 
-void 
+void
 freeVal (Value *val)
 {
 	if (val->dt == DT_STRING)
 		free(val->v.stringV);
 	free(val);
 }
-

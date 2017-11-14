@@ -32,7 +32,7 @@ typedef struct Record
 	char *data;
 } Record;
 
-// information of a table schema: its attributes, datatypes, 
+// information of a table schema: its attributes, datatypes,
 typedef struct Schema
 {
 	int numAttr;

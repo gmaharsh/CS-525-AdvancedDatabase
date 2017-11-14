@@ -82,8 +82,8 @@ serializeTableInfo(RM_TableData *rel)
 
 	RETURN_STRING(result);
 }
-
-char * 
+/*
+char *
 serializeTableContent(RM_TableData *rel)
 {
 	int i;
@@ -107,8 +107,8 @@ serializeTableContent(RM_TableData *rel)
 	RETURN_STRING(result);
 }
 
-
-char * 
+*/
+char *
 serializeSchema(Schema *schema)
 {
 	int i;
@@ -148,7 +148,7 @@ serializeSchema(Schema *schema)
 	RETURN_STRING(result);
 }
 
-char * 
+char *
 serializeRecord(Record *record, Schema *schema)
 {
 	VarString *result;
@@ -168,7 +168,7 @@ serializeRecord(Record *record, Schema *schema)
 	RETURN_STRING(result);
 }
 
-char * 
+char *
 serializeAttr(Record *record, Schema *schema, int attrNum)
 {
 	int offset;
@@ -280,7 +280,7 @@ stringToValue(char *val)
 }
 
 
-RC 
+RC
 attrOffset (Schema *schema, int attrNum, int *result)
 {
 	int offset = 0;
