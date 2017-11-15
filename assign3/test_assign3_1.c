@@ -76,14 +76,6 @@ main (void)
 {
 	testName = "";
 
-	testRecords();
-	testCreateTableAndInsert();
-	testUpdateTable();
-	testInsertManyRecords();
-
-
-	/*
-
 	testInsertManyRecords();
 	testRecords();
 	testCreateTableAndInsert();
@@ -91,7 +83,7 @@ main (void)
 	testScans();
 	testScansTwo();
 	testMultipleScans();
-	*/
+
 	return 0;
 }
 
@@ -208,7 +200,7 @@ testCreateTableAndInsert (void)
 	free(table);
 	TEST_DONE();
 }
-/*
+
 void
 testMultipleScans(void)
 {
@@ -284,7 +276,7 @@ testMultipleScans(void)
 	free(table);
 	TEST_DONE();
 }
-*/
+
 void
 testUpdateTable (void)
 {
@@ -456,7 +448,7 @@ testInsertManyRecords(void)
   free(table);
   TEST_DONE();
 }
-/*
+
 void testScans (void)
 {
 	RM_TableData *table = (RM_TableData *) malloc(sizeof(RM_TableData));
@@ -521,6 +513,7 @@ void testScans (void)
 				foundScan[i] = TRUE;
 		}
 	}
+
 	if (rc != RC_RM_NO_MORE_TUPLES)
 		TEST_CHECK(rc);
 	TEST_CHECK(closeScan(sc));
@@ -615,9 +608,11 @@ void testScansTwo (void)
 	TEST_CHECK(startScan(table, sc, sel));
 	while((rc = next(sc, r)) == RC_OK)
 	{
+
 		ASSERT_EQUALS_RECORDS(fromTestRecord(schema, inserts[5]), r, schema, "compare records");
 		serializeRecord(r, schema);
 	}
+
 	if (rc != RC_RM_NO_MORE_TUPLES)
 		TEST_CHECK(rc);
 	TEST_CHECK(closeScan(sc));
@@ -642,6 +637,7 @@ void testScansTwo (void)
 	TEST_CHECK(closeScan(sc));
 
 	ASSERT_TRUE(!foundScan[0], "not greater than four");
+	//printf("%d",foundScan[4]);
 	ASSERT_TRUE(foundScan[4], "greater than four");
 	ASSERT_TRUE(foundScan[9], "greater than four");
 
@@ -657,7 +653,7 @@ void testScansTwo (void)
 	TEST_DONE();
 }
 
-*/
+
 
 Schema *
 testSchema (void)

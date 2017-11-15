@@ -4,18 +4,14 @@
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
 #include "record_mgr.h"
-#include<ctype.h>
+#include <ctype.h>
 
-typedef struct freeList{
-        int position;
-        struct freeList *next;
-}freeList;
+
 typedef struct DatabaseManager {
         BM_PageHandle page;
         BM_BufferPool buffer;
         int numRows;
         int maxRecords;
-        int *freePointer;
         int freePage;
         int snumAttr;
         char sattrName[5];
@@ -36,11 +32,11 @@ extern RC initRecordManager(void *mgmtData){
 }
 
 extern RC shutdownRecordManager (){
-  shutdownBufferPool(&dbm->buffer);
-    dbm = NULL;
+        shutdownBufferPool(&dbm->buffer);
+        dbm = NULL;
 
-    free(dbm);
-    return RC_OK;
+        free(dbm);
+        return RC_OK;
 }
 
 
@@ -49,15 +45,15 @@ extern RC createTable (char *name, Schema *schema){
         dbm =(DatabaseManager *) malloc(sizeof(DatabaseManager));
         int result;
 
-        if(initBufferPool(&dbm->buffer,name,40,RS_FIFO,NULL) != RC_OK){
-          return RC_ERROR;
+        if(initBufferPool(&dbm->buffer,name,40,RS_FIFO,NULL) != RC_OK) {
+                return RC_ERROR;
         }
 
         char data[PAGE_SIZE];
-	      char *dataPage;
+        char *dataPage;
 
-        for(int i =0;i<PAGE_SIZE;i++){
-          data[i] = '-';
+        for(int i =0; i<PAGE_SIZE; i++) {
+                data[i] = '-';
         }
 
         int index = 0;
@@ -84,23 +80,18 @@ extern RC createTable (char *name, Schema *schema){
 
         for(i = 0; i < schema->numAttr; i++) {
                 dataPage = &data[index];
-                for(int j=0;j<strlen(schema->attrNames[i]);j++){
-                  data[index] = schema->attrNames[i][j];
+                for(int j=0; j<strlen(schema->attrNames[i]); j++) {
+                        data[index] = schema->attrNames[i][j];
                 }
                 char *temp = &dbm->sattrName[i];
                 strncpy(temp,schema->attrNames[i],1);
 
-
                 index = index + attribute_size;
-
-
-
                 sprintf(temp,"%d",schema->dataTypes[i]);
                 data[index] = *temp;
 
                 index = index + sizeof(int);
                 dbm->sdataTypes[i] = schema->dataTypes[i];
-
 
                 char ts[20];
                 sprintf(ts,"%d",schema->typeLength[i]);
@@ -113,57 +104,34 @@ extern RC createTable (char *name, Schema *schema){
         }
 
         data[index] = '\0';
-        //printf("%s",data);
         SM_FileHandle fh;
 
 
         if((result =createPageFile(name)) != RC_OK)
-		          return result;
+                return result;
         if((result = openPageFile(name,&fh)) != RC_OK)
-		          return result;
-        //printf("%s",data+1);
+                return result;
         if((result = writeBlock(0, &fh, data)) != RC_OK)
-      	      return result;
+                return result;
 
 
         if((result = closePageFile(&fh)!= RC_OK))
-          return result;
-        //ensureCapacity(3,&fh);
-
+                return result;
 
         return RC_OK;
 }
 
 extern RC openTable (RM_TableData *rel, char *name){
-  //return RC_OK;
 
         SM_PageHandle page;
 
         rel->name = name;
         rel->mgmtData = dbm;
 
-
-
-        //pinPage(&dbm->buffer,&dbm->page,0);
-//printf("Test %s\n",dbm->page.data);
-        //page = (char *)dbm->page.data;
-        //printf("%d",strlen(page));
-        //int x = 0;
-        //x = *page - '0';
-        //dbm->freePage  = x;
-        //page = page + sizeof(int);
-
-        //x = *page - '0';
-        // dbm->numRows  = x;
-        //page = page + sizeof(int);
-
-
         Schema *s = (Schema *)malloc(sizeof(Schema));
-        //x = *page - '0';
         s->numAttr = dbm->snumAttr;
 
-        //printf("%d",  s->numAttr );
-        //page = page + sizeof(int);
+
         int count = s->numAttr;
 
         s->attrNames = (char **)malloc(count * sizeof(char *));
@@ -175,29 +143,18 @@ extern RC openTable (RM_TableData *rel, char *name){
 
         for(i =0; i<3; i++) {
 
-          s->attrNames[i] = (char *)malloc(attribute_size);
+                s->attrNames[i] = (char *)malloc(attribute_size);
+                char *temp = &dbm->sattrName[i];
+                strncpy(s->attrNames[i],temp,1);
 
-          char *temp = &dbm->sattrName[i];
-          strncpy(s->attrNames[i],temp,1);
+                s->dataTypes[i] = dbm->sdataTypes[i];
 
-          //page = page + attribute_size;
-
-
-          //x = *page - '0';
-          s->dataTypes[i] = dbm->sdataTypes[i];
-          //page = page + sizeof(int);
-
-          //x = *page - '0';
-          s->typeLength[i] = dbm->stypeLength[i];
-          //page = page + sizeof(int);
-          //c++;
+                s->typeLength[i] = dbm->stypeLength[i];
 
         }
 
         rel->schema = s;
 
-        //unpinPage(&dbm->buffer,&dbm->page);
-        //forcePage(&dbm->buffer,&dbm->page);
 
         return RC_OK;
 
@@ -206,8 +163,6 @@ extern RC openTable (RM_TableData *rel, char *name){
 extern RC closeTable (RM_TableData *rel){
         DatabaseManager  *dbmanger = rel->mgmtData;
         forceFlushPool(&dbmanger->buffer);
-
-        //rel->mgmtData = NULL;
 
         return RC_OK;
 }
@@ -226,9 +181,6 @@ extern int getNumTuples (RM_TableData *rel){
 }
 
 
-//for insert find a free space in the table and write the data in that slot. figure out a way to represent the slots in teh code
-//update the RID in the parameter passed to the function.
-
 extern RC insertRecord (RM_TableData *rel, Record *record){
         DatabaseManager *dbmanager = rel->mgmtData;
         char d[PAGE_SIZE];
@@ -240,70 +192,59 @@ extern RC insertRecord (RM_TableData *rel, Record *record){
 
 
         int record_size = getRecordSize(rel->schema);
-        //printf("%d",record_size);
+
 
         pageNumber = dbmanager->freePage;
-        //printf("%d",pageNumber);
+
 
 
         pinPage(&dbmanager->buffer,&dbmanager->page,pageNumber);
-        //printf("lol");
-        //printf("%s",dbmanager->page.data);
+
 
         int loc=0;
         RID *recordID = &record->id;
         data = dbmanager->page.data;
-        //printf("%s",data);
 
-          /*
-          for(int i =0;i<PAGE_SIZE;i++){
-            data[i] = '-';
-          }*/
-
-        //printf("%s",data);
         recordID->page = pageNumber;
-        //printf("%d",recordID->page);
+
         freeSlot = dbmanager->numRows;
-        //printf("%d",freeSlot);
         recordID->slot = freeSlot;
         int flag = 0;
-        //insert the if statement to insert into new pag if page if full.
 
-        if(numRows > 341){
-          //printf("lol");
-          pageNumber++;
+        if(numRows > (PAGE_SIZE/record_size)) {
 
-          dbmanager->freePage = dbmanager->freePage + 1;
-          flag = 1;
-          dbmanager->numRows = 0;
-          unpinPage(&dbmanager->buffer,&dbmanager->page);
-          recordID->page= pageNumber;
-          //printf("%d",  recordID->page);
-          recordID->slot = dbmanager->numRows;
+                pageNumber++;
 
-          pinPage(&dbmanager->buffer,&dbmanager->page,recordID->page);
-          //data = data + PAGE_SIZE;
-          data =  dbmanager->page.data;
-          //printf("%s",dbmanager->page.data);
+                dbmanager->freePage = dbmanager->freePage + 1;
+                flag = 1;
+                dbmanager->numRows = 0;
+                unpinPage(&dbmanager->buffer,&dbmanager->page);
+                recordID->page= pageNumber;
+
+                recordID->slot = dbmanager->numRows;
+
+                pinPage(&dbmanager->buffer,&dbmanager->page,recordID->page);
+
+                data =  dbmanager->page.data;
+
         }
 
         markDirty(&dbmanager->buffer,&dbmanager->page);
         location = data;
-        //printf("%s\n",record->data);
+
         location = location + (recordID->slot * record_size);
-        //printf("%s",*data + location);
+
         loc = (recordID->slot * record_size);
-        //printf("%s",record->data);
 
 
-        for(int counter = 0;counter < record_size;counter++){
-          //printf("lol");
-          data[loc++] = record->data[counter];
+
+        for(int counter = 0; counter < record_size; counter++) {
+
+                data[loc++] = record->data[counter];
 
         }
 
-        //memcpy(location,record->data,record_size);
-        //printf("%s %d",dbmanager->page.data,recordID->slot);
+
 
         unpinPage(&dbmanager->buffer,&dbmanager->page);
 
@@ -311,7 +252,7 @@ extern RC insertRecord (RM_TableData *rel, Record *record){
 
         dbmanager->numRows++;
 
-        pinPage(&dbmanager->buffer,&dbmanager->page,0) ;
+        pinPage(&dbmanager->buffer,&dbmanager->page,0);
 
         return RC_OK;
 
@@ -319,133 +260,127 @@ extern RC insertRecord (RM_TableData *rel, Record *record){
 }
 extern RC updateRecord (RM_TableData *rel, Record *record){
 
-      DatabaseManager *dbmanager = rel->mgmtData;
+        DatabaseManager *dbmanager = rel->mgmtData;
 
-      char *dataPointer;
-      //printf("%d",record->id.page);
-      pinPage(&dbmanager->buffer,&dbmanager->page,record->id.page);
+        char *dataPointer;
 
-      RID recordID = record->id;
+        pinPage(&dbmanager->buffer,&dbmanager->page,record->id.page);
 
-      int record_size = getRecordSize(rel->schema);
+        RID recordID = record->id;
 
-      dataPointer = dbmanager->page.data;
-      dataPointer = dataPointer + (recordID.slot * record_size);
-      memcpy(dataPointer,record->data,record_size);
-      markDirty(&dbmanager->buffer,&dbmanager->page);
-      unpinPage(&dbmanager->buffer,&dbmanager->page);
-      forcePage(&dbmanager->buffer,&dbmanager->page);
+        int record_size = getRecordSize(rel->schema);
 
-      return RC_OK;
+        dataPointer = dbmanager->page.data;
+        dataPointer = dataPointer + (recordID.slot * record_size);
+        memcpy(dataPointer,record->data,record_size);
+        markDirty(&dbmanager->buffer,&dbmanager->page);
+        unpinPage(&dbmanager->buffer,&dbmanager->page);
+        forcePage(&dbmanager->buffer,&dbmanager->page);
+
+        return RC_OK;
 }
 extern RC deleteRecord(RM_TableData *rel, RID id){
-    DatabaseManager *dbmanager = rel->mgmtData;
+        DatabaseManager *dbmanager = rel->mgmtData;
 
-    //printf("%d",id.page);
-    pinPage(&dbmanager->buffer,&dbmanager->page,id.page);
-    dbmanager->freePage = id.page;
-    char *data =dbmanager->page.data;
-    int record_size = getRecordSize(rel->schema);
-    //printf("%d",record_size);
-    //data = data + (id.slot * record_size);
-    //printf("%c", data[(id.slot * record_size)+4]);
-    for(int i=0;i<record_size;i++){
-      data[(id.slot * record_size) + i] = '-';
 
-    }
-    //printf("%s",data);
-    markDirty(&dbmanager->buffer,&dbmanager->page);
-    unpinPage(&dbmanager->buffer,&dbmanager->page);
-    forcePage(&dbmanager->buffer,&dbmanager->page);
+        pinPage(&dbmanager->buffer,&dbmanager->page,id.page);
+        dbmanager->freePage = id.page;
+        char *data =dbmanager->page.data;
+        int record_size = getRecordSize(rel->schema);
 
-    return RC_OK;
+        for(int i=0; i<record_size; i++) {
+                data[(id.slot * record_size) + i] = '-';
+
+        }
+
+        markDirty(&dbmanager->buffer,&dbmanager->page);
+        unpinPage(&dbmanager->buffer,&dbmanager->page);
+        forcePage(&dbmanager->buffer,&dbmanager->page);
+
+        return RC_OK;
 }
 
 extern RC getRecord (RM_TableData *rel, RID id, Record *record){
-    DatabaseManager *dbmanager = (DatabaseManager *)rel->mgmtData;
-    //printf("%d",id.page);
+        DatabaseManager *dbmanager = (DatabaseManager *)rel->mgmtData;
 
-    pinPage(&dbmanager->buffer,&dbmanager->page,id.page);
-
-
-    //char *data =dbmanager->page.data;
-    int record_size = getRecordSize(rel->schema);
+        pinPage(&dbmanager->buffer,&dbmanager->page,id.page);
+        int record_size = getRecordSize(rel->schema);
 
 
+        char *d = dbmanager->page.data;
+        for(int i =0; i<12; i++) {
 
-    //data = data + (id.slot*record_size);
+                record->data[i] = d[(id.slot*12)+i];
 
-    char *d = dbmanager->page.data;
-    //printf("%d",record_size);
-    //printf("%s",dbmanager->page.data);
-    //d = d + (id.slot*record_size);
+        }
+        unpinPage(&dbmanager->buffer,&dbmanager->page);
 
-    //printf("%s",d);
-    for(int i =0;i<12;i++){
-      //printf("lol");
-      record->data[i] = d[(id.slot*12)+i];
-
-      //printf("%c",d[(id.slot*record_size)+i]);
-    }
-
-
-    //printf("\ns %d",id.page);
-
-  unpinPage(&dbmanager->buffer,&dbmanager->page);
-
-    return RC_OK;
-
-
-
+        return RC_OK;
 }
+int scanCount =  0;
 extern RC startScan (RM_TableData *rel, RM_ScanHandle *scan, Expr *cond){
-  
+        scan->mgmtData = cond;
+        scan->rel = rel;
+
+        return RC_OK;
 }
+extern RC next (RM_ScanHandle *scan, Record *record){
+        Expr *cond = (Expr *)scan->mgmtData;
+        Schema *schema = scan->rel->schema;
+        if (cond == NULL)
+        {
+                return RC_ERROR;
+        }
+        Value *result = (Value *) malloc(sizeof(Value));
+        int record_size = getRecordSize(schema);
+        int maxRecords = PAGE_SIZE/record_size;
+        int totalRows = dbm->numRows;
 
 
+        while(scanCount <= totalRows) {
+                pinPage(&dbm->buffer,&dbm->page,1);
+                char *data = dbm->page.data;
 
+                data = data + (record_size*scanCount);
+                record->id.page = 1;
+                record->id.slot = scanCount;
 
+                char *recordData = record->data;
+                scanCount++;
+                memcpy(recordData,data,record_size);
 
-
-
-
-
-
-
-
-
-
-
+                evalExpr(record,schema,cond,&result);
+                if(result->v.boolV == TRUE) {
+                        unpinPage(&dbm->buffer,&dbm->page);
+                        return RC_OK;
+                }
+        }
+        scanCount = 0;
+        return RC_RM_NO_MORE_TUPLES;
+}
+extern RC closeScan (RM_ScanHandle *scan)
+{
+        return RC_OK;
+}
 
 extern int getRecordSize (Schema *schema){
-  Schema *s = schema;
-  int count = s->numAttr;
-  //printf("%d\n",count);
-  int i,size = 0;
+        Schema *s = schema;
+        int count = s->numAttr;
+        int i,size = 0;
 
-  for(i=0;i<count; i++){
-    //printf("lol %d",s->dataTypes[i]);
-    switch(s->dataTypes[i]){
-      case DT_INT:size += sizeof(int);break;
-      case DT_STRING:size += s->typeLength[i];break;
-      case DT_FLOAT:size += sizeof(float);break;
-      case DT_BOOL:size += sizeof(bool);break;
-    }
-  }
-  //printf("%d\n",size);
-  return size;
+        for(i=0; i<count; i++) {
+
+                switch(s->dataTypes[i]) {
+                case DT_INT: size += sizeof(int); break;
+                case DT_STRING: size += s->typeLength[i]; break;
+                case DT_FLOAT: size += sizeof(float); break;
+                case DT_BOOL: size += sizeof(bool); break;
+                }
+        }
+
+        return size;
 }
 
-
-
-
-
-
-
-
-
-
-//Create the Schema.
 extern Schema *createSchema (int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys){
         Schema *s = (Schema *)malloc(sizeof(Schema));
         s->numAttr = numAttr;
@@ -460,8 +395,8 @@ extern Schema *createSchema (int numAttr, char **attrNames, DataType *dataTypes,
 extern RC freeSchema (Schema *schema){
         Schema *s = schema;
         int i;
-        for(i =0;i<s->numAttr;i++){
-          free(s->attrNames[i]);
+        for(i =0; i<s->numAttr; i++) {
+                free(s->attrNames[i]);
         }
         free(s->typeLength);
         free(s->dataTypes);
@@ -471,193 +406,141 @@ extern RC freeSchema (Schema *schema){
 }
 
 
-//Record and Attribute values
 extern RC createRecord (Record **record, Schema *schema){
-      Record *r =(Record *)malloc(sizeof(Record));
-      r->id.page = r->id.slot = -1;
-      int size = getRecordSize(schema);
-      //printf("%d\n",size);
-      r->data = (char*)malloc(size);
-      for(int k=0;k<getRecordSize(schema);k++){
-        r->data[k] = '-';
-      }
+        Record *r =(Record *)malloc(sizeof(Record));
+        r->id.page = r->id.slot = -1;
+        int size = getRecordSize(schema);
+        r->data = (char*)malloc(size);
+        for(int k=0; k<getRecordSize(schema); k++) {
+                r->data[k] = '-';
+        }
 
-      *record = r;
-
-      return RC_OK;
+        *record = r;
+        return RC_OK;
 }
 extern int getAttributeOffset(int attrNum, Schema *schema){
-      int i,offset =0;
+        int i,offset =0;
 
+        for(i=0; i<attrNum; i++) {
 
-      for(i=0;i<attrNum;i++){
-
-        switch(schema->dataTypes[i]){
-          case DT_INT:offset += sizeof(int);break;
-          case DT_STRING:offset += schema->typeLength[i];break;
-          case DT_FLOAT:offset += sizeof(float);break;
-          case DT_BOOL:offset += sizeof(bool);break;
+                switch(schema->dataTypes[i]) {
+                case DT_INT: offset += sizeof(int); break;
+                case DT_STRING: offset += schema->typeLength[i]; break;
+                case DT_FLOAT: offset += sizeof(float); break;
+                case DT_BOOL: offset += sizeof(bool); break;
+                }
         }
-      }
 
-      return offset;
+        return offset;
 }
 extern RC freeRecord (Record *record){
-  free(record->data);
-  free(record);
-  return RC_OK;
+        free(record->data);
+        free(record);
+        return RC_OK;
 }
 
 extern RC setAttr (Record *record, Schema *schema, int attrNum, Value *value){
 
-      int numAttr = schema->numAttr;
+        int numAttr = schema->numAttr;
+        int i;
+        int offset=0;
+        int dataP = 0;
 
-      int i;
-      int offset=0;
-      //finding offset
-      int dataP = 0;
-      offset = getAttributeOffset(attrNum,schema);
+        offset = getAttributeOffset(attrNum,schema);
+        dataP = dataP + offset;
 
-
-
-      dataP = dataP + offset;
-
-
-
-
-      switch(schema->dataTypes[attrNum]){
-        case 0:{
-
-          //value->v.intV = 2222;
-          char temp[20];
-          sprintf(temp,"%d", value->v.intV);
-          int count =0;
-          while(value->v.intV != 0)
-          {
-              // n = n/10
-              value->v.intV /= 10;
-              ++count;
-          }
-          for(int t = 0;t < count;t++){
-            record->data[dataP+t] = temp[t];
-          }
-          //printf("%s\n",record->data);
-
-          break;
+        switch(schema->dataTypes[attrNum]) {
+        case 0: {
+                char temp[20];
+                sprintf(temp,"%d", value->v.intV);
+                int count =0;
+                while(value->v.intV != 0)
+                {
+                        value->v.intV /= 10;
+                        ++count;
+                }
+                for(int t = 0; t < count; t++) {
+                        record->data[dataP+t] = temp[t];
+                }
+                break;
         }
-        case 1:{
-          //printf("str %d\n",dataP);
-          int length = schema->typeLength[attrNum];
-          char *charPointer = &record->data[dataP];
-          int t = dataP;
-          for(int k=0;k<strlen(value->v.stringV);k++){
+        case 1: {
 
-            record->data[t+k] = value->v.stringV[k];
-
-          }
-
-
-          break;
+                int length = schema->typeLength[attrNum];
+                char *charPointer = &record->data[dataP];
+                int t = dataP;
+                for(int k=0; k<strlen(value->v.stringV); k++) {
+                        record->data[t+k] = value->v.stringV[k];
+                }
+                break;
         }
-        case 2:{
-          char temp[20];
-          sprintf(temp,"%f", value->v.floatV);
-          record->data[dataP] =*temp;
-          break;
+        case 2: {
+                char temp[20];
+                sprintf(temp,"%f", value->v.floatV);
+                record->data[dataP] =*temp;
+                break;
         }
-        case 3:{
-          char temp[20];
-          sprintf(temp,"%d", value->v.boolV);
-          record->data[dataP] =*temp;
-          break;
+        case 3: {
+                char temp[20];
+                sprintf(temp,"%d", value->v.boolV);
+                record->data[dataP] =*temp;
+                break;
         }
       }
-      //printf("%s\n",record->data);
-
-      return RC_OK;
-
+        return RC_OK;
 }
 extern RC getAttr (Record *record, Schema *schema, int attrNum, Value **value){
-      Value *new_value = (Value *)malloc(sizeof(Value));
-      int offset = 0;
-      int dataP = 0;
-      offset = getAttributeOffset(attrNum,schema);
-      //printf("%d\n",offset);
-      dataP = dataP + offset;
-      char *data = record->data;
-      data = data + offset;
-      switch(schema->dataTypes[attrNum]){
-        case 0:{
-          char temp[20];
-          //int val =0;
-          //memcpy(&val,data,sizeof(int));
-          /*
-          int c  = strlen(data[dataP])
-          for(int i =0 ; i < count ; i++){
-            temp[i] = data[dataP + i];
-          }
-          printf("%s\n",temp);
-          */
-          int count = 0;
-          int i ;
-          for(i =0;i<4;i++){
-            if(isdigit(record->data[i])){
+        Value *new_value = (Value *)malloc(sizeof(Value));
+        int offset = 0;
+        int dataP = 0;
+        offset = getAttributeOffset(attrNum,schema);
 
-                temp[count] = data[i];
+        dataP = dataP + offset;
+        char *data = record->data;
+        data = data + offset;
+        switch(schema->dataTypes[attrNum]) {
+        case 0: {
+                char temp[20];
+                int count = 0;
+                int i;
+                for(i =0; i<4; i++) {
+                        if((data[i] - '0') > 0) {
+                                temp[count] = data[i];
+                                count++;
+                        }
+                        else{
+                                break;
+                        }
 
-                count++;
-            }
-            else{
-              break;
-            }
+                }
+                int vs=0;
+                for(int k =0; k<count; k++) {
+                        vs = vs * 10 +(temp[k] - '0');
 
-          }
-          int vs=0 ;
-
-          for(int k =0 ; k<count; k++){
-            vs = vs * 10 +(temp[k] - '0');
-
-          }
-          //printf("%d",vs);
-          new_value->v.intV  = vs;
-          new_value->dt = 0;
-
-
-          break;
+                }
+                new_value->v.intV  = vs;
+                new_value->dt = 0;
+                break;
         }
-        case 1:{
-          //new_value->v.stringV = "aaaa";
-
-
-          //printf("%c",data[dataP]);
-          new_value->v.stringV = (char *)malloc(4);
-          new_value->dt = 1;
-
-          strncpy(new_value->v.stringV,data,4);
-          new_value->v.stringV[4] = '\0';
-          //printf("%s\n",new_value->v.stringV);
-
-
-          break;
+        case 1: {
+                new_value->v.stringV = (char *)malloc(4);
+                new_value->dt = 1;
+                strncpy(new_value->v.stringV,data,4);
+                new_value->v.stringV[4] = '\0';
+                break;
         }
-        case 2:{
-          new_value->v.floatV  = data[dataP] - '0';
-          new_value->dt = 2;
-
-
-          break;
+        case 2: {
+                new_value->v.floatV  = data[dataP] - '0';
+                new_value->dt = 2;
+                break;
         }
-        case 3:{
-          new_value->v.boolV  = data[dataP] - '0';
-          new_value->dt = 3;
-
-
-          break;
+        case 3: {
+                new_value->v.boolV  = data[dataP] - '0';
+                new_value->dt = 3;
+                break;
         }
       }
-
-      *value = new_value;
-
-      return RC_OK;
+        *value = new_value;
+        return RC_OK;
 
 }
