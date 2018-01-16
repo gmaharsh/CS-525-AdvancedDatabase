@@ -1,2 +1,4 @@
 # CS-525-AdvancedDatabase
-ADO IIT, Fall 2017.
+  For Advanced Databse Organization(ADO) at IIT, Fall 2017.
+  
+# Readme Enclosed for each assignment inside the Directory.
